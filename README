@@ -1,0 +1,23 @@
+# alertPacket
+
+alertPackets snoops for incoming or outgoing packets, sums the bytes with a tcp/udp port
+and ip destination tuple. Can be used for monitoring outgoing or incoming UDP streams and
+writes CheckMK-specific local output to stdout.
+
+# Learn mode with  five second packet interval
+./alertPacket -l -i eno1 -t 5s > alertPacket_eno1.txt
+
+# Edit the learned destinations, e.g. delete not needed destinations
+vi eno1_learn.txt
+
+# PROTOCOL:DESTINATION_IP:DESTINATION_PORT=EXPECTED_BYTES
+UDP:237.0.0.25:5000=4441920
+UDP:237.0.0.32:5000=3908352
+
+# Test mode with default 10s capture interval
+./alertPacket -f alertPacket_eno1.txt -i eno1
+
+0 UDP:237.0.0.10:5000 - fine (4718784/2360064) bytes
+1 UDP:237.0.0.17:5000 - missing (3815616/4386816) bytes
+0 UDP:237.0.0.15:5000 - fine (2858688/1514688) bytes
+0  UDP:237.0.0.32:5000 - fine (8651328/3908352) bytes

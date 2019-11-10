@@ -17,6 +17,7 @@ import (
 var (
 	seenDests   = make(map[string]int)
 	shallDests  = make(map[string]int)
+<<<<<<< HEAD
 	keepRunning = false
 )
 
@@ -31,6 +32,27 @@ func main() {
 
 	/* read wished capture */
 	if !*learn { readFile(*fileName) }
+=======
+	keepRunning = true
+)
+
+func main() {
+	/* parameters */
+	device := flag.String("i", "en2", "interface name to snoop traffic on")
+	learn := flag.Bool("l", false, "'learn'-mode, save this as starting file")
+	promiscuous := flag.Bool("p", false, "enable promiscuous mode for interface card")
+	timeout := flag.Duration("t", 10*time.Second, "default time for capturing, set down for learn-mode")
+	fileName := flag.String("f", "", "file for connection table, e.g. learn-mode output")
+	flag.Parse()
+
+	/* read wished capture */
+	if !*learn {
+		if *fileName == "" {
+			log.Fatal("No filename given for connection table")
+		}
+		readFile(*fileName)
+	}
+>>>>>>> 16ec9a6... Initial commit
 
 	/* open device */
 	handle, err := pcap.OpenLive(*device, 128, *promiscuous, *timeout)
@@ -41,10 +63,18 @@ func main() {
 
 	/* signal loop stop  */
 	go func() {
+<<<<<<< HEAD
 		time.Sleep(time.Second * 10)
 		keepRunning = false
 	}()
 
+=======
+		time.Sleep(*timeout)
+		keepRunning = false
+	}()
+
+	/* packet reading loop */
+>>>>>>> 16ec9a6... Initial commit
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range packetSource.Packets() {
 		sumPacket(packet)
@@ -53,6 +83,10 @@ func main() {
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	/* when learning mode, print out the bucket */
+>>>>>>> 16ec9a6... Initial commit
 	if *learn {
 		for k, v := range seenDests {
 			fmt.Printf("%s=%d\n", k, v)
@@ -66,17 +100,32 @@ func main() {
 	for tuple, bytes := range shallDests {
 		if bytesSeen, ok := seenDests[tuple]; ok {
 			if bytesSeen < bytes {
+<<<<<<< HEAD
 				fmt.Printf("2 %s - , (%d/%d) bytes\n", tuple, bytesSeen, bytes)
 			} else {
 				fmt.Printf("0 %s - (%d/%d) bytes\n", tuple, bytesSeen, bytes)
 			}
 		} else {
 			fmt.Printf("1 %s - (0/%d) bytes\n", tuple, bytes)
+=======
+				fmt.Printf("1 %s -  missing (%d/%d) bytes\n", tuple, bytesSeen, bytes)
+			} else {
+				fmt.Printf("0 %s - fine (%d/%d) bytes\n", tuple, bytesSeen, bytes)
+			}
+		} else {
+			fmt.Printf("2 %s - zero (0/%d) bytes\n", tuple, bytes)
+>>>>>>> 16ec9a6... Initial commit
 		}
 	}
 
 }
 
+<<<<<<< HEAD
+=======
+/* move down the layers
+and count bytes per destination
+*/
+>>>>>>> 16ec9a6... Initial commit
 func sumPacket(packet gopacket.Packet) {
 	/* probe for ipv4 layer */
 	ipLayer := packet.Layer(layers.LayerTypeIPv4)
@@ -94,6 +143,10 @@ func sumPacket(packet gopacket.Packet) {
 		if tcp != nil {
 			hostPort := fmt.Sprintf("TCP:%s:%d", ip.DstIP.String(), tcp.DstPort)
 			seenDests[hostPort] += int(ip.Length)
+<<<<<<< HEAD
+=======
+			return
+>>>>>>> 16ec9a6... Initial commit
 		}
 	}
 
@@ -103,6 +156,10 @@ func sumPacket(packet gopacket.Packet) {
 		if udp != nil {
 			hostPort := fmt.Sprintf("UDP:%s:%d", ip.DstIP.String(), udp.DstPort)
 			seenDests[hostPort] += int(ip.Length)
+<<<<<<< HEAD
+=======
+			return
+>>>>>>> 16ec9a6... Initial commit
 		}
 	}
 
