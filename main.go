@@ -25,7 +25,7 @@ func main() {
 	device := flag.String("i", "en2", "interface name to snoop traffic on")
 	learn := flag.Bool("l", false, "'learn'-mode, save this as starting file")
 	promiscuous := flag.Bool("p", false, "enable promiscuous mode for interface card")
-	timeout := flag.Duration("t", 10*time.Second, "default time for capturing, set down for learn-mode")
+	timeout := flag.Duration("t", 15*time.Second, "default time for capturing, set down for learn-mode")
 	fileName := flag.String("f", "", "file for connection table, e.g. learn-mode output")
 	flag.Parse()
 
