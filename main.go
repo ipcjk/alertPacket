@@ -73,6 +73,8 @@ func main() {
 
 	for tuple, bytes := range shallDests {
 		var serviceName string
+
+		/* Check for complete service string */
 		if bytesSeen, ok := seenDests[tuple]; ok {
 
 			if destName, ok := shallDestsNames[tuple]; ok {
@@ -87,6 +89,7 @@ func main() {
 		} else {
 			fmt.Printf("2 %s - %s zero (0/%d) bytes\n", tuple, serviceName, bytes)
 		}
+
 	}
 
 }
@@ -110,7 +113,9 @@ func sumPacket(packet gopacket.Packet) {
 		tcp, _ := tcpLayer.(*layers.TCP)
 		if tcp != nil {
 			hostPort := fmt.Sprintf("TCP:%s:%d", ip.DstIP.String(), tcp.DstPort)
+			hostOnly := fmt.Sprintf("TCP:%s:0", ip.DstIP.String())
 			seenDests[hostPort] += int(ip.Length)
+			seenDests[hostOnly] += int(ip.Length)
 			return
 		}
 	}
@@ -120,7 +125,9 @@ func sumPacket(packet gopacket.Packet) {
 		udp, _ := udpLayer.(*layers.UDP)
 		if udp != nil {
 			hostPort := fmt.Sprintf("UDP:%s:%d", ip.DstIP.String(), udp.DstPort)
+			hostOnly := fmt.Sprintf("UDP:%s:0", ip.DstIP.String())
 			seenDests[hostPort] += int(ip.Length)
+			seenDests[hostOnly] += int(ip.Length)
 			return
 		}
 	}
@@ -143,6 +150,7 @@ func readFile(fileName string) {
 		}
 		i, err := strconv.Atoi(parsed[1])
 		if err == nil {
+			fmt.Println(parsed[0])
 			shallDests[parsed[0]] = i
 			if len(parsed) == 3 && parsed[2] != "" {
 				shallDestsNames[parsed[0]] = parsed[2]
