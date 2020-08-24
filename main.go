@@ -150,7 +150,6 @@ func readFile(fileName string) {
 		}
 		i, err := strconv.Atoi(parsed[1])
 		if err == nil {
-			fmt.Println(parsed[0])
 			shallDests[parsed[0]] = i
 			if len(parsed) == 3 && parsed[2] != "" {
 				shallDestsNames[parsed[0]] = parsed[2]
