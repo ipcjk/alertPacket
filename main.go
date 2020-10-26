@@ -9,6 +9,7 @@ import (
 	"github.com/google/gopacket/pcap"
 	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +19,7 @@ var (
 	seenDests       = make(map[string]int)
 	shallDests      = make(map[string]int)
 	shallDestsNames = make(map[string]string)
+	shallDestsCmd   = make(map[string]string)
 	keepRunning     = true
 )
 
@@ -88,6 +90,12 @@ func main() {
 			}
 		} else {
 			fmt.Printf("2 %s - %s zero (0/%d) bytes\n", tuple, serviceName, bytes)
+			if _, exists := shallDestsCmd[tuple]; exists {
+				if shallDestsCmd[tuple] != "" {
+					log.Println("Executing", shallDestsCmd[tuple])
+					exec.Command(shallDestsCmd[tuple])
+				}
+			}
 		}
 
 	}
@@ -151,8 +159,13 @@ func readFile(fileName string) {
 		i, err := strconv.Atoi(parsed[1])
 		if err == nil {
 			shallDests[parsed[0]] = i
-			if len(parsed) == 3 && parsed[2] != "" {
+			if len(parsed) >= 3 && parsed[2] != "" {
 				shallDestsNames[parsed[0]] = parsed[2]
+			}
+
+			/* handler, e.g. bash restart script */
+			if len(parsed) >= 4 {
+				shallDestsCmd[parsed[0]] = parsed[3]
 			}
 		}
 	}
