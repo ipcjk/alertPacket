@@ -92,8 +92,14 @@ func main() {
 			fmt.Printf("2 %s - %s zero (0/%d) bytes\n", tuple, serviceName, bytes)
 			if _, exists := shallDestsCmd[tuple]; exists {
 				if shallDestsCmd[tuple] != "" {
-					log.Println("Executing", shallDestsCmd[tuple])
-					exec.Command(shallDestsCmd[tuple])
+					extraArgs := strings.Split(shallDestsCmd[tuple], " ")
+					cmd := exec.Command(extraArgs[0], extraArgs[1:]...)
+
+					err = cmd.Run()
+					if err != nil {
+						log.Println("Executing error ", extraArgs[0], err)
+					}
+
 				}
 			}
 		}
