@@ -74,22 +74,25 @@ func main() {
 	*/
 
 	for tuple, bytes := range shallDests {
-		var serviceName string
+		var s1output string
+		var s2output string
+
+		if destName, ok := shallDestsNames[tuple]; ok {
+			/* flip Name and tuple if Name exists */
+			s1output, s2output = destName, tuple
+		} else {
+			s1output, s2output = tuple, tuple
+		}
 
 		/* Check for complete service string */
 		if bytesSeen, ok := seenDests[tuple]; ok {
-
-			if destName, ok := shallDestsNames[tuple]; ok {
-				serviceName = destName
-			}
-
 			if bytesSeen < bytes {
-				fmt.Printf("1 %s -  %s  missing (%d/%d) bytes\n", tuple, serviceName, bytesSeen, bytes)
+				fmt.Printf("1 %s -  %s  missing (%d/%d) bytes\n", s1output, s2output, bytesSeen, bytes)
 			} else {
-				fmt.Printf("0 %s - %s fine (%d/%d) bytes\n", tuple, serviceName, bytesSeen, bytes)
+				fmt.Printf("0 %s - %s fine (%d/%d) bytes\n", s1output, s2output, bytesSeen, bytes)
 			}
 		} else {
-			fmt.Printf("2 %s - %s zero (0/%d) bytes\n", tuple, serviceName, bytes)
+			fmt.Printf("2 %s - %s zero (0/%d) bytes\n", s1output, s2output, bytes)
 			if _, exists := shallDestsCmd[tuple]; exists {
 				if shallDestsCmd[tuple] != "" {
 					extraArgs := strings.Split(shallDestsCmd[tuple], " ")
