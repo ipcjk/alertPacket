@@ -86,10 +86,14 @@ func main() {
 			s1output, s2output = tuple, tuple
 		}
 
+		if s1output == s2output {
+			s2output = ""
+		}
+
 		/* Check for complete service string */
 		if bytesSeen, ok := seenDests[tuple]; ok {
 			if bytesSeen < bytes {
-				outputMessage += fmt.Sprintf("%s -  %s  missing (%d/%d) bytes:", s1output, s2output, bytesSeen, bytes)
+				outputMessage += fmt.Sprintf("%s -  %s  missing (%d/%d) bytes;", s1output, s2output, bytesSeen, bytes)
 				if raiseState == 0 {
 					raiseState = 1
 				}
@@ -103,7 +107,7 @@ func main() {
 				raiseState = 2
 			}
 
-			outputMessage += fmt.Sprintf("%s - %s zero (0/%d) bytes\n", s1output, s2output, bytes)
+			outputMessage += fmt.Sprintf("%s - %s zero (0/%d) bytes;", s1output, s2output, bytes)
 
 			if _, exists := shallDestsCmd[tuple]; exists {
 				if shallDestsCmd[tuple] != "" {
@@ -120,7 +124,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(outputMessage)
+	fmt.Printf("%d AlertPacket - %s\n", raiseState, outputMessage)
 
 }
 
