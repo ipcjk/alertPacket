@@ -21,6 +21,8 @@ var (
 	shallDestsNames = make(map[string]string)
 	shallDestsCmd   = make(map[string]string)
 	keepRunning     = true
+	outputMessage   string
+	raiseState      int64
 )
 
 func main() {
@@ -87,12 +89,22 @@ func main() {
 		/* Check for complete service string */
 		if bytesSeen, ok := seenDests[tuple]; ok {
 			if bytesSeen < bytes {
-				fmt.Printf("1 %s -  %s  missing (%d/%d) bytes\n", s1output, s2output, bytesSeen, bytes)
-			} else {
-				fmt.Printf("0 %s - %s fine (%d/%d) bytes\n", s1output, s2output, bytesSeen, bytes)
+				outputMessage += fmt.Sprintf("%s -  %s  missing (%d/%d) bytes:", s1output, s2output, bytesSeen, bytes)
+				if raiseState == 0 {
+					raiseState = 1
+				}
 			}
+			//else {
+			//	outputMessage += fmt.Sprintf("%s - %s fine (%d/%d) bytes\n", s1output, s2output, bytesSeen, bytes)
+			//}
 		} else {
-			fmt.Printf("2 %s - %s zero (0/%d) bytes\n", s1output, s2output, bytes)
+
+			if raiseState != 2 {
+				raiseState = 2
+			}
+
+			outputMessage += fmt.Sprintf("%s - %s zero (0/%d) bytes\n", s1output, s2output, bytes)
+
 			if _, exists := shallDestsCmd[tuple]; exists {
 				if shallDestsCmd[tuple] != "" {
 					extraArgs := strings.Split(shallDestsCmd[tuple], " ")
@@ -106,8 +118,9 @@ func main() {
 				}
 			}
 		}
-
 	}
+
+	fmt.Println(outputMessage)
 
 }
 
