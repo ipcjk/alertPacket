@@ -32,15 +32,8 @@ func main() {
 	promiscuous := flag.Bool("p", false, "enable promiscuous mode for interface card")
 	timeout := flag.Duration("t", 15*time.Second, "default time for capturing, set down for learn-mode")
 	fileName := flag.String("f", "", "file for connection table, e.g. learn-mode output")
+	nogroup := flag.Bool("nogroup", true, "Group or no group output")
 	flag.Parse()
-
-	/* read wished capture */
-	if !*learn {
-		if *fileName == "" {
-			log.Fatal("No filename given for connection table")
-		}
-		readFile(*fileName)
-	}
 
 	/* open device */
 	handle, err := pcap.OpenLive(*device, 128, *promiscuous, *timeout)
@@ -93,21 +86,30 @@ func main() {
 		/* Check for complete service string */
 		if bytesSeen, ok := seenDests[tuple]; ok {
 			if bytesSeen < bytes {
-				outputMessage += fmt.Sprintf("%s -  %s  missing (%d/%d) bytes;", s1output, s2output, bytesSeen, bytes)
+				if *nogroup {
+					fmt.Printf("1 %s -  %s  missing (%d/%d) bytes\n", s1output, s2output, bytesSeen, bytes)
+				} else {
+					outputMessage += fmt.Sprintf("%s -  %s  missing (%d/%d) bytes;", s1output, s2output, bytesSeen, bytes)
+				}
 				if raiseState == 0 {
 					raiseState = 1
 				}
+			} else {
+				if *nogroup {
+					fmt.Printf("0 %s - %s fine (%d/%d) bytes\n", s1output, s2output, bytesSeen, bytes)
+				}
 			}
-			//else {
-			//	outputMessage += fmt.Sprintf("%s - %s fine (%d/%d) bytes\n", s1output, s2output, bytesSeen, bytes)
-			//}
 		} else {
 
 			if raiseState != 2 {
 				raiseState = 2
 			}
 
-			outputMessage += fmt.Sprintf("%s - %s zero (0/%d) bytes;", s1output, s2output, bytes)
+			if *nogroup {
+				fmt.Printf("2 %s - %s zero (0/%d) bytes\n", s1output, s2output, bytes)
+			} else {
+				outputMessage += fmt.Sprintf("%s - %s zero (0/%d) bytes;", s1output, s2output, bytes)
+			}
 
 			if _, exists := shallDestsCmd[tuple]; exists {
 				if shallDestsCmd[tuple] != "" {
@@ -124,7 +126,9 @@ func main() {
 		}
 	}
 
-	fmt.Printf("%d AlertPacket - %s\n", raiseState, outputMessage)
+	if *nogroup == false {
+		fmt.Printf("%d AlertPacket - %s\n", raiseState, outputMessage)
+	}
 
 }
 
