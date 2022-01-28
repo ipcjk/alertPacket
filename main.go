@@ -35,6 +35,14 @@ func main() {
 	nogroup := flag.Bool("nogroup", true, "Group or no group output")
 	flag.Parse()
 
+	/* read wished capture */
+	if !*learn {
+		if *fileName == "" {
+			log.Fatal("No filename given for connection table")
+		}
+		readFile(*fileName)
+	}
+
 	/* open device */
 	handle, err := pcap.OpenLive(*device, 128, *promiscuous, *timeout)
 	if err != nil {
